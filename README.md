@@ -6,6 +6,8 @@ The tool uses EXIF and video-container-encoded creation time (and failing that, 
 In case of name collision, a counter `{i = 1,2,...}` is included.
 
 ## Installation
+Ensure `ffmpeg` and `exiv2` are installed, if you want to handle video files and raw images (e.g `arw`, `cr2`, `nef`, `dng`), respectively.
+
 ```shell
 git clone git@github.com:wukongct/media-renamer.git
 cd media-renamer
