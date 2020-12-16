@@ -132,3 +132,6 @@ log/
 
 # Database
 *.db
+
+# Runner
+run_rename.sh

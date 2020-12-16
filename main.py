@@ -13,5 +13,6 @@ if __name__ == '__main__':
     )
 
     logging.info("=== Start ===")
+    logging.info(datetime.now())
     rename_files()
     logging.info("=== End ===")

@@ -101,6 +101,8 @@ def get_image_odt(file_path: str):
 @click.argument('files', nargs=-1, type=click.Path(exists=True))
 @click.argument('dest', nargs=1, type=click.Path(exists=True))
 def rename_files(files, dest):
+    logger.info(files)
+    logger.info(dest)
     video_formats = ['.mp4', '.avi', '.wmv', '.mkv', '.rmvb', '.iso', '.asf', '.mpg', '.mov']
     photo_path = os.path.join(dest, 'photo')
     video_path = os.path.join(dest, 'video')
@@ -149,4 +151,7 @@ def rename_files(files, dest):
 
         logger.info("{} -> {}".format(file, os.path.join(dest_path, new_file)))
         os.rename(file, os.path.join(dest_path, new_file))
+
+    logger.info('Completed renaming')
+    return None
 
