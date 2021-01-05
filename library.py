@@ -70,7 +70,7 @@ def get_image_odt(file_path: str):
 
     # Handle RAW files first
     file_suffix = pathlib.Path(file_path).suffix
-    if file_suffix.lower() in ['.arw', '.cr2', '.nef', '.dng', '.ARW', '.CR2', '.NEF', '.DNG']:
+    if file_suffix.lower() in ['.arw', '.cr2', '.nef', '.dng']:
         cmd = 'exiv2 -pt -K Exif.Photo.DateTimeOriginal {}'.format(file_path)
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(cmd)
