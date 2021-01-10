@@ -1,13 +1,15 @@
-__all__ = ['get_file_odt', 'get_image_odt', 'rename_files']
+__all__ = ['get_file_odt', 'get_image_odt', 'rename_files', 'dedup_dir']
 
+import hashlib
 from datetime import datetime
+from pprint import pprint
+from typing import Iterable
 
 from PIL import Image, UnidentifiedImageError
 import os
 import logging
 import pathlib
 import subprocess
-import click
 import json
 import dateutil.parser
 
@@ -97,9 +99,26 @@ def get_image_odt(file_path: str):
     return image_odt
 
 
-@click.command(context_settings={"ignore_unknown_options": True})
-@click.argument('files', nargs=-1, type=click.Path(exists=True))
-@click.argument('dest', nargs=1, type=click.Path(exists=True))
+def get_dupe_files(file_paths: Iterable[str]):
+    file_sizes = [os.stat(file_path).st_size for file_path in file_paths]
+    sorted_fs = [(file, size) for size, file in sorted(zip(file_sizes, file_paths))]
+    BUF_SIZE = 65536
+    dup_files = list()
+    for (file1, size1), (file2, size2) in zip(sorted_fs[:-1], sorted_fs[1:]):
+        if size1 == size2:
+            md1 = hashlib.md5()
+            md2 = hashlib.md5()
+            with open(file1, 'rb') as f1, open(file2, 'rb') as f2:
+                md1.update(f1.read(BUF_SIZE))
+                md2.update(f2.read(BUF_SIZE))
+            if md1.digest() == md2.digest():
+                dup_files.append(file2)
+                logger.info('Dup: ' + '  '.join([file1, file2, str(size1), str(size2), md1.hexdigest(), md2.hexdigest()]))
+    for file in dup_files:
+        os.remove(file)
+    
+
+
 def rename_files(files, dest):
     logger.info(files)
     logger.info(dest)
@@ -154,4 +173,17 @@ def rename_files(files, dest):
 
     logger.info('Completed renaming')
     return None
+
+
+def dedup_dir(dest):
+    logger.info(dest)
+    photo_dir = os.path.join(dest, 'photo')
+    video_dir = os.path.join(dest, 'video')
+    photos = [os.path.join(photo_dir, x) for x in os.listdir(photo_dir)]
+    videos = [os.path.join(video_dir, x) for x in os.listdir(video_dir)]
+    # print(photos)
+    # print(videos)
+
+    get_dupe_files(photos)
+    get_dupe_files(videos)
 
