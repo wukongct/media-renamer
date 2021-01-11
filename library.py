@@ -99,7 +99,7 @@ def get_image_odt(file_path: str):
     return image_odt
 
 
-def get_dupe_files(file_paths: Iterable[str]):
+def dedup_files(file_paths: Iterable[str]):
     file_sizes = [os.stat(file_path).st_size for file_path in file_paths]
     sorted_fs = [(file, size) for size, file in sorted(zip(file_sizes, file_paths))]
     BUF_SIZE = 65536
@@ -116,12 +116,11 @@ def get_dupe_files(file_paths: Iterable[str]):
                 logger.info('Dup: ' + '  '.join([file1, file2, str(size1), str(size2), md1.hexdigest(), md2.hexdigest()]))
     for file in dup_files:
         os.remove(file)
-    
 
 
 def rename_files(files, dest):
-    logger.info(files)
-    logger.info(dest)
+    logger.info(f'Start renaming into {dest}')
+    logger.debug(files)
     video_formats = ['.mp4', '.avi', '.wmv', '.mkv', '.rmvb', '.iso', '.asf', '.mpg', '.mov']
     photo_path = os.path.join(dest, 'photo')
     video_path = os.path.join(dest, 'video')
@@ -176,14 +175,12 @@ def rename_files(files, dest):
 
 
 def dedup_dir(dest):
-    logger.info(dest)
+    logger.info(f'Start deduping {dest}')
     photo_dir = os.path.join(dest, 'photo')
     video_dir = os.path.join(dest, 'video')
     photos = [os.path.join(photo_dir, x) for x in os.listdir(photo_dir)]
     videos = [os.path.join(video_dir, x) for x in os.listdir(video_dir)]
-    # print(photos)
-    # print(videos)
-
-    get_dupe_files(photos)
-    get_dupe_files(videos)
-
+    dedup_files(photos)
+    dedup_files(videos)
+    logger.info('Completed deduping')
+    return None

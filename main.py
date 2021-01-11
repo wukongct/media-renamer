@@ -13,8 +13,10 @@ from datetime import datetime
 @click.argument('files', nargs=-1, type=click.Path(exists=True))
 @click.argument('dest', nargs=1, type=click.Path(exists=True))
 def do_rename_dedup(files, dest):
+    logging.info("=== Start ===")
     rename_files(files, dest)
     dedup_dir(dest)
+    logging.info("===  End  ===")
 
 
 if __name__ == '__main__':
@@ -24,8 +26,5 @@ if __name__ == '__main__':
         format='%(asctime)s; %(name)s; %(levelname)s; %(message)s',
         level=logging.INFO
     )
-
-    logging.info("=== Start ===")
-    logging.info(datetime.now())
     do_rename_dedup()
-    logging.info("=== End ===")
+
