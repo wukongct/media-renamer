@@ -119,6 +119,7 @@ def dedup_files(file_paths: Iterable[str]):
 
 
 def rename_files(files, dest):
+    pprint(files)
     logger.info(f'Start renaming into {dest}')
     logger.debug(files)
     video_formats = ['.mp4', '.avi', '.wmv', '.mkv', '.rmvb', '.iso', '.asf', '.mpg', '.mov']
