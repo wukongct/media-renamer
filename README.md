@@ -5,7 +5,9 @@ Given a set of photo and video files, the tool reads the creation date/time, and
 The tool uses EXIF and video-container-encoded creation time (and failing that, fall back to file system time).
 In case of name collision, a counter `{i = 1,2,...}` is included.
 
-## Installation
+## Running Directly on Host
+### Installation
+
 Ensure `ffmpeg` and `exiv2` are installed, if you want to handle video files and raw images (e.g `arw`, `cr2`, `nef`, `dng`), respectively.
 
 ```shell
@@ -14,8 +16,22 @@ cd media-renamer
 make env
 ```
 
-## Usage
+### Usage
 ```shell
 source ./venv/bin/activate
 ./main.py {FILES_TO_BE_RENAMED} {OUTPUT_DIRECTORY}
+```
+
+## Docker
+### Installation
+Ensure you have docker installed. The container is based on official ubuntu image.
+```shell
+git clone git@github.com:wukongct/media-renamer.git
+docker build -t mrn media-renamer/
+```
+
+### Usage
+Currently, docker usage only allows renaming contents of entire directory.
+```shell
+docker run -d --name cmrn -v {SRC_DIR}:{DEST_DIR}:rw mrn:latest
 ```

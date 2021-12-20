@@ -124,7 +124,11 @@ def rename_files(files, dest):
     logger.debug(files)
     video_formats = ['.mp4', '.avi', '.wmv', '.mkv', '.rmvb', '.iso', '.asf', '.mpg', '.mov']
     photo_path = os.path.join(dest, 'photo')
+    if not os.path.exists(photo_path):
+        os.makedirs(photo_path)
     video_path = os.path.join(dest, 'video')
+    if not os.path.exists(video_path):
+        os.makedirs(video_path)
     photo_dict = init_collision_dict(photo_path)
     video_dict = init_collision_dict(video_path)
 
