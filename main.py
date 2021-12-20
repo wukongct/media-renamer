@@ -1,12 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from library import *
 
 import logging
 import click
 import os
-
-from datetime import datetime
 
 
 @click.command(context_settings={"ignore_unknown_options": True})
@@ -20,11 +18,9 @@ def do_rename_dedup(files, dest):
 
 
 if __name__ == '__main__':
-    home_dir = os.path.expanduser('~')
     logging.basicConfig(
-        filename=os.path.join(home_dir, 'log/renamer_{}.log'.format(datetime.today().strftime('%Y%m%d'))),
+        filename=os.path.join(os.getenv('DATADIR'), 'mr_log.log'),
         format='%(asctime)s; %(name)s; %(levelname)s; %(message)s',
         level=logging.INFO
     )
     do_rename_dedup()
-

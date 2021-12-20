@@ -1,0 +1,1 @@
+* * * * * /usr/src/app/run_rename.sh >> /data/mr_main.log 2>&1
