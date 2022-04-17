@@ -12,6 +12,7 @@ import pathlib
 import subprocess
 import json
 import dateutil.parser
+import exifread
 
 
 logger = logging.getLogger(__name__)
@@ -25,7 +26,11 @@ def init_collision_dict(dr, collision_dict=None):
     for file in files:
         if not os.path.isfile(os.path.join(dr, file)):
             continue
+
         file_base = os.path.basename(file)
+        if len(file_base.split('_')) < 3:
+            logger.error(f'non-conformal file {file} encountered in init_collision_dict')
+            continue
         file_sdt = '_'.join(os.path.splitext(file_base)[0].split('_')[1:3])
         file_idx = os.path.splitext(file_base)[0].split('_')[-1]
         file_suffix = pathlib.Path(file).suffix.lower()
@@ -38,6 +43,7 @@ def init_collision_dict(dr, collision_dict=None):
                 collision_dict[file_key] = file_idx
         except ValueError as ex:
             logger.error(ex)
+            continue
     return collision_dict
 
 
@@ -58,7 +64,7 @@ def get_video_odt(file_path: str):
         creation_time = None
     try:
         creation_odt = dateutil.parser.parse(creation_time)
-    except (ValueError, OverflowError) as ex:
+    except (ValueError, OverflowError, TypeError) as ex:
         logger.error(ex)
         creation_odt = None
     # print(file_path, creation_time, creation_odt)
@@ -84,12 +90,23 @@ def get_image_odt(file_path: str):
         raw_odt = datetime.strptime(sdt, '%Y:%m:%d %H:%M:%S')
         return raw_odt
 
-    try:
-        im = Image.open(file_path)
-        im_sdt = im.getexif()[36867]
-    except (UnidentifiedImageError, KeyError) as ex:
-        logger.error(ex)
-        return None
+    if file_suffix.lower() in ['.heic']:
+        # Handle HEIC files
+        try:
+            with open(file_path, 'rb') as f:
+                tags = exifread.process_file(f)
+                im_sdt = tags.get('EXIF DateTimeOriginal').values
+        except (AttributeError, KeyError) as ex:
+            logger.error(ex)
+            return None
+    else:
+        # regular image files
+        try:
+            im = Image.open(file_path)
+            im_sdt = im.getexif()[36867]
+        except (UnidentifiedImageError, KeyError) as ex:
+            logger.error(ex)
+            return None
 
     try:
         image_odt = datetime.strptime(im_sdt, '%Y:%m:%d %H:%M:%S')
@@ -123,19 +140,23 @@ def rename_files(files, dest):
     logger.info(f'Start renaming into {dest}')
     logger.debug(files)
     video_formats = ['.mp4', '.avi', '.wmv', '.mkv', '.rmvb', '.iso', '.asf', '.mpg', '.mov']
+    photo_formats = ['.jpg', '.jpeg', '.arw', '.cr2', '.bmp', '.gif', '.heic']
     photo_path = os.path.join(dest, 'photo')
     if not os.path.exists(photo_path):
         os.makedirs(photo_path)
     video_path = os.path.join(dest, 'video')
     if not os.path.exists(video_path):
         os.makedirs(video_path)
+    logger.info('Initiate collision dict')
     photo_dict = init_collision_dict(photo_path)
     video_dict = init_collision_dict(video_path)
+    logger.info('collision dict initiated')
 
     # pprint(photo_dict)
     # pprint(video_dict)
 
     for file in files:
+        logger.info(f'Work on {file}')
         if not os.path.isfile(file):
             continue
 
@@ -152,8 +173,11 @@ def rename_files(files, dest):
 
         if file_suffix in video_formats:
             odt = get_video_odt(file)
-        else:
+        elif file_suffix in photo_formats:
             odt = get_image_odt(file)
+        else:
+            logger.info(f"Unrecognized file format {file}")
+            continue
 
         if odt is None:
             odt = get_file_odt(file)

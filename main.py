@@ -19,7 +19,7 @@ def do_rename_dedup(files, dest):
 
 if __name__ == '__main__':
     logging.basicConfig(
-        filename=os.path.join(os.getenv('DATADIR', '.'), 'mr_log.log'),
+        filename=os.path.join(os.getenv('DATADIR', '.'), 'mrn.log'),
         format='%(asctime)s; %(name)s; %(levelname)s; %(message)s',
         level=logging.INFO
     )
