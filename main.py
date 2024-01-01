@@ -5,21 +5,22 @@ from library import *
 import logging
 import click
 import os
+import datetime
 
 
 @click.command(context_settings={"ignore_unknown_options": True})
-@click.argument('files', nargs=-1, type=click.Path(exists=True))
-@click.argument('dest', nargs=1, type=click.Path(exists=True))
-def do_rename_dedup(files, dest):
+@click.argument('input_dir', nargs=1, type=click.Path(exists=True))
+@click.argument('output_dir', nargs=1, type=click.Path(exists=True))
+def do_rename_dedup(input_dir, output_dir):
     logging.info("=== Start ===")
-    rename_files(files, dest)
-    dedup_dir(dest)
+    rename_files(input_dir, output_dir)
+    dedup_dir(output_dir)
     logging.info("===  End  ===")
 
 
 if __name__ == '__main__':
     logging.basicConfig(
-        filename=os.path.join(os.getenv('DATADIR', '.'), 'mrn.log'),
+        filename='{}/mrn_{}.log'.format(os.getenv('DATA_DIR', '.'), datetime.datetime.today().strftime('%Y%m%d')),
         format='%(asctime)s; %(name)s; %(levelname)s; %(message)s',
         level=logging.INFO
     )
