@@ -1,9 +1,45 @@
 # media-renamer
 Simple tool for organizing imported photos and videos.
-Given a set of photo and video files, the tool reads the creation date/time, and rename the files into `YYYYMMDD_HHMMSS_{i}.*` format.
+Given an input directory, the tool:
+* Creates a jpg copy of any .heic pictures, as HEIC is not as widely-supported.
+* Renames and moves photo/videos to an output directory, with 'YYYYMMDD_HHMMSS' style naming.
+  * It uses level-1 sub-directories of `INPUT_DIR` as albums.
+  * It separates photos and videos.
+  * It organizes photos and videos into `YYYYQ{1,2,3,4}` directories for each album.
 
 The tool uses EXIF and video-container-encoded creation time (and failing that, fall back to file system time).
-In case of name collision, a counter `{i = 1,2,...}` is included.
+In case of photos taken at the same second-precision timestamp, random string is appended to file name to avoid collision.
+
+## Input Directory
+Please create a directory structure for ingesting photos and videos:
+```commandline
+$DATA_DIR
+|- $INPUT_DIR
+    |- album_1
+        |- pic1.jpg
+        |- vid1.mp4
+        |- ...
+    |- album_2
+    |- ...
+|- $OUTPUT_DIR
+```
+
+
+## Docker
+### Installation
+
+Ensure you have docker installed. The container is based on official ubuntu image.
+```shell
+git clone git@github.com:wukongct/media-renamer.git
+docker build -t mrn media-renamer/
+```
+
+### Usage
+```shell
+docker run -d --name mrn1 -v {YOUR_IMG_DIR}:/data:rw mrn:latest
+```
+Optionally, you can export `INPUT_DIR` and `OUTPUT_DIR` environment variables, which defaults to `input` and `originals`, respectively.
+
 
 ## Running Directly on Host
 ### Installation
@@ -15,23 +51,8 @@ git clone git@github.com:wukongct/media-renamer.git
 cd media-renamer
 make env
 ```
-
 ### Usage
 ```shell
 source ./venv/bin/activate
 ./main.py {FILES_TO_BE_RENAMED} {OUTPUT_DIRECTORY}
-```
-
-## Docker
-### Installation
-Ensure you have docker installed. The container is based on official ubuntu image.
-```shell
-git clone git@github.com:wukongct/media-renamer.git
-docker build -t mrn media-renamer/
-```
-
-### Usage
-Currently, docker usage only allows renaming contents of entire directory.
-```shell
-docker run -d --name cmrn -v {SRC_DIR}:{DEST_DIR}:rw mrn:latest
 ```
