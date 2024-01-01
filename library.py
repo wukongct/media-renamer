@@ -1,4 +1,4 @@
-__all__ = ['get_file_odt', 'get_image_odt', 'rename_files', 'dedup_dir']
+__all__ = ['get_file_odt', 'get_image_odt', 'rename_files', 'dedup_dir', 'convert_heic_dir']
 
 import hashlib
 import random
@@ -129,6 +129,19 @@ def convert_heic_file(root, file):
     return rc
 
 
+def convert_heic_dir(root):
+    if not os.path.exists(root):
+        logger.error(f'Cannot run HEIC conversion on non-existent directory {root}')
+
+    logger.info(f'Start converting all HEIC files in {root} recursively')
+    for root, dirs, files in os.walk(root, topdown=False):
+        for file in files:
+            file_suffix = pathlib.Path(file).suffix.lower()
+            if file_suffix == '.heic':
+                convert_heic_file(root, file)
+    logger.info(f'Completed converting all HEIC files in {root}')
+
+
 def rename_files(input_dir, output_dir):
     logger.info(f'Start ingesting from {input_dir} to {output_dir}')
     input_objects = os.listdir(input_dir)
@@ -163,10 +176,6 @@ def rename_files(input_dir, output_dir):
                     continue
 
                 file_suffix = pathlib.Path(file).suffix.lower()
-
-                # HACK: convert HEIC here - won't be effective till next run
-                if file_suffix == '.heic':
-                    convert_heic_file(album_path, file)
 
                 if file_suffix not in MRNConfig.PHOTO_SFX and file_suffix not in MRNConfig.VIDEO_SFX:
                     logger.info(f'Skip non-photo and non-video file {album}/{file}')
@@ -234,6 +243,10 @@ def dedup_files(file_paths):
 
 
 def dedup_dir(output_dir):
+    if not os.path.exists(output_dir):
+        logger.error(f'Cannot de-duplicate non-existent directory {output_dir}')
+        return 1
+
     logger.info(f'Start de-duplicating {output_dir} recursively')
     file_paths = []
     for root, dirs, files in os.walk(output_dir, topdown=False):
@@ -241,5 +254,5 @@ def dedup_dir(output_dir):
             file_paths.append(os.path.join(root, file))
     dedup_files(file_paths)
     logger.info(f'Completed de-duplicating {output_dir}')
-    return None
+    return 0
 

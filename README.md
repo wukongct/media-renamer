@@ -1,6 +1,11 @@
 # media-renamer
 Simple tool for organizing imported photos and videos.
-Given a set of photo and video files, the tool reads the creation date/time, and rename the files into `YYYYMMDD_HHMMSS.*` format.
+Given an input directory, the tool:
+* Creates a jpg copy of any .heic pictures, as HEIC is not as widely-supported.
+* Renames and moves photo/videos to an output directory, with 'YYYYMMDD_HHMMSS' style naming.
+  * It uses level-1 sub-directories of `INPUT_DIR` as albums.
+  * It separates photos and videos.
+  * It organizes photos and videos into `YYYYQ{1,2,3,4}` directories for each album.
 
 The tool uses EXIF and video-container-encoded creation time (and failing that, fall back to file system time).
 In case of photos taken at the same second-precision timestamp, random string is appended to file name to avoid collision.

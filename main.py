@@ -13,6 +13,7 @@ import datetime
 @click.argument('output_dir', nargs=1, type=click.Path(exists=True))
 def do_rename_dedup(input_dir, output_dir):
     logging.info("=== Start ===")
+    convert_heic_dir(input_dir)
     rename_files(input_dir, output_dir)
     dedup_dir(output_dir)
     logging.info("===  End  ===")
