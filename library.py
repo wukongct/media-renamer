@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class MRNConfig:
     IGNORE_PTN = ['tmp', '#', '.', 'mrn']
     VIDEO_SFX = ['.mp4', '.avi', '.wmv', '.mkv', '.rmvb', '.iso', '.asf', '.mpg', '.mov']
-    PHOTO_SFX = ['.jpg', '.jpeg', '.arw', '.cr2', '.nef', '.dng', '.bmp', '.gif', '.heic']
+    PHOTO_SFX = ['.jpg', '.jpeg', '.arw', '.cr2', '.nef', '.dng', '.bmp', '.png', '.gif', '.heic']
     PHOTO_RAW_SFX = ['.arw', '.cr2', '.nef', '.dng']
 
 
